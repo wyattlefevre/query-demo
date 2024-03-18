@@ -1,25 +1,25 @@
-const { ApolloServer, gql } = require('apollo-server');
-const { Sequelize, DataTypes } = require('sequelize');
+const { ApolloServer, gql } = require("apollo-server");
+const { Sequelize, DataTypes } = require("sequelize");
 
 // Set up the database
 const sequelize = new Sequelize({
-  dialect: 'sqlite',
-  storage: './database.sqlite',
+  dialect: "sqlite",
+  storage: "./database.sqlite",
   define: {
-    timestamps: false
-  }
+    timestamps: false,
+  },
 });
 
-const Post = sequelize.define('Post', {
+const Post = sequelize.define("Post", {
   title: DataTypes.STRING,
 });
 
-const Comment = sequelize.define('Comment', {
+const Comment = sequelize.define("Comment", {
   comment: DataTypes.STRING,
 });
 
-Post.hasMany(Comment, { foreignKey: 'postId' });
-Comment.belongsTo(Post, { foreignKey: 'postId' });
+Post.hasMany(Comment, { foreignKey: "postId" });
+Comment.belongsTo(Post, { foreignKey: "postId" });
 
 // Sync the models with the database
 sequelize.sync();
@@ -63,7 +63,7 @@ const resolvers = {
     updateComment: async (_, { commentId, updatedComment }) => {
       const comment = await Comment.findByPk(commentId);
       if (!comment) {
-        throw new Error('Comment not found');
+        throw new Error("Comment not found");
       }
       comment.comment = updatedComment;
       await comment.save();

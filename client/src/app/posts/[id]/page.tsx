@@ -19,11 +19,12 @@ function Page({ params }: { params: { id: string } }) {
   if (error) {
     return <div>Error: {error.message}</div>
   }
+  console.log(data)
   return (
     <div>
-      <p className="text-gray-500 py-2">Post Page {params.id}</p>
+      <p className="text-gray-500 text-sm pt-2">Post ID: {params.id}</p>
       <h1 className="text-xl font-bold">{data.post.title}</h1>
-      <div className="py-2">
+      <div className="">
         {data.post.comments.map((c) => (
           <p key={c.id}>{c.comment}</p>
         ))}
@@ -33,7 +34,7 @@ function Page({ params }: { params: { id: string } }) {
           e.preventDefault()
           createComment(params.id, newComment).then(() => setNewComment(''))
         }}
-        className="flex gap-2"
+        className="flex gap-2 py-2"
       >
         <input
           className="outline outline-1"

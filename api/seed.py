@@ -12,8 +12,8 @@ def seed_database():
         post_id = c.lastrowid
 
         # Seed Comments table
-        for j in range(5):  # generating 5 comments for each post
-            comment_text = f"comment {j+1}"
+        for j in range(3):  # generating 5 comments for each post
+            comment_text = f"generated comment {j+1}"
             c.execute("INSERT INTO Comments (comment, postId) VALUES (?, ?)", (comment_text, post_id))
 
     conn.commit()

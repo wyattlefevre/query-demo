@@ -4,8 +4,6 @@ import './globals.css'
 import { PostStoreProvider } from '@/providers/PostsStoreProvider'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'
 
-const inter = Inter({ subsets: ['latin'] })
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,7 +18,11 @@ export default function RootLayout({
     <ApolloProvider client={client}>
       <PostStoreProvider initializeFromStorage={true}>
         <html lang="en">
-          <body className={inter.className}>{children}</body>
+          <body className="p-4">
+            <p className="text-center text-2xl font-bold">Apollo Query Demo</p>
+            <hr />
+            {children}
+          </body>
         </html>
       </PostStoreProvider>
     </ApolloProvider>
