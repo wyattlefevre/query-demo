@@ -65,3 +65,22 @@ export function useCreateComment() {
   }
   return { createComment, loading, error }
 }
+
+export const UPDATE_COMMENT = gql`
+  mutation UpdateComment($commentId: ID!, $updatedComment: String!) {
+    updateComment(commentId: $commentId, updatedComment: $updatedComment) {
+      id
+      comment
+    }
+  }
+`
+
+export function useUpdateComment() {
+  const [mutate, { loading, error }] = useMutation(UPDATE_COMMENT, {
+    refetchQueries: [GET_POST_WITH_COMMENTS],
+  })
+  const updateComment = async (commentId: string, updatedComment: string) => {
+    mutate({ variables: { commentId, updatedComment } })
+  }
+  return { updateComment, loading, error }
+}
