@@ -34,6 +34,7 @@ const typeDefs = gql`
   type Mutation {
     addComment(postId: ID!, comment: String!): Comment
     updateComment(commentId: ID!, updatedComment: String!): Comment
+    addPost(title: String!): Post
   }
 
   type Post {
@@ -68,6 +69,9 @@ const resolvers = {
       comment.comment = updatedComment;
       await comment.save();
       return comment;
+    },
+    addPost: async (_, { title }) => {
+      return await Post.create({ title });
     },
   },
   Post: {

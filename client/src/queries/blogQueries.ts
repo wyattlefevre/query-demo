@@ -14,6 +14,23 @@ export function usePosts() {
   return useQuery(GET_POSTS)
 }
 
+export const CREATE_POST = gql`
+  mutation CreatePost($title: String!) {
+    addPost(title: $title) {
+      id
+    }
+  }
+`
+export function useCreatePost() {
+  const [mutate, { loading, error }] = useMutation(CREATE_POST, {
+    refetchQueries: [GET_POSTS],
+  })
+  const createPost = async (title: string) => {
+    mutate({ variables: { title } })
+  }
+  return { createPost, loading, error }
+}
+
 export const GET_POST_WITH_COMMENTS = gql`
   query GetPostWithComments($id: ID!) {
     post(id: $id) {
