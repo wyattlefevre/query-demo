@@ -1,85 +1,90 @@
-const express = require("express");
-const cors = require("cors");
-const { graphqlHTTP } = require("express-graphql");
-const { buildSchema } = require("graphql");
-const { Sequelize, DataTypes } = require("sequelize");
+const { ApolloServer, gql } = require('apollo-server');
+const { Sequelize, DataTypes } = require('sequelize');
 
 // Set up the database
 const sequelize = new Sequelize({
-  dialect: "sqlite",
-  storage: "./database.sqlite",
+  dialect: 'sqlite',
+  storage: './database.sqlite',
+  define: {
+    timestamps: false
+  }
 });
 
-const Post = sequelize.define(
-  "Post",
-  {
-    title: DataTypes.STRING,
-  },
-  {
-    timestamps: false,
-  },
-);
+const Post = sequelize.define('Post', {
+  title: DataTypes.STRING,
+});
 
-const Comment = sequelize.define(
-  "Comment",
-  {
-    comment: DataTypes.STRING,
-    postId: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: Post,
-        key: "id",
-      },
-    },
-  },
-  {
-    timestamps: false,
-  },
-);
+const Comment = sequelize.define('Comment', {
+  comment: DataTypes.STRING,
+});
+
+Post.hasMany(Comment, { foreignKey: 'postId' });
+Comment.belongsTo(Post, { foreignKey: 'postId' });
 
 // Sync the models with the database
 sequelize.sync();
 
-// Construct a schema, using GraphQL schema language
-const schema = buildSchema(`
+// Define GraphQL schema
+const typeDefs = gql`
   type Query {
-    post(id: ID): Post
+    post(id: ID!): Post
     posts: [Post]
-    comment(id: ID): Comment
-    comments: [Comment]
+  }
+
+  type Mutation {
+    addComment(postId: ID!, comment: String!): Comment
+    updateComment(commentId: ID!, updatedComment: String!): Comment
   }
 
   type Post {
-    id: ID
+    id: ID!
     title: String
     comments: [Comment]
   }
 
   type Comment {
-    id: ID
+    id: ID!
     comment: String
     post: Post
   }
-`);
+`;
 
-// The root provides a resolver function for each API endpoint
-const root = {
-  posts: async () => await Post.findAll(),
-  comments: async () => await Comment.findAll(),
-  post: async ({ id }) => await Post.findByPk(id),
-  comment: async ({ id }) => await Comment.findByPk(id),
+// Define resolvers
+const resolvers = {
+  Query: {
+    post: async (_, { id }) => await Post.findByPk(id),
+    posts: async () => await Post.findAll(),
+  },
+  Mutation: {
+    addComment: async (_, { postId, comment }) => {
+      const newComment = await Comment.create({ postId, comment });
+      return newComment;
+    },
+    updateComment: async (_, { commentId, updatedComment }) => {
+      const comment = await Comment.findByPk(commentId);
+      if (!comment) {
+        throw new Error('Comment not found');
+      }
+      comment.comment = updatedComment;
+      await comment.save();
+      return comment;
+    },
+  },
+  Post: {
+    comments: async (post) => await post.getComments(),
+  },
+  Comment: {
+    post: async (comment) => await comment.getPost(),
+  },
 };
 
-const app = express();
-app.use(cors());
-app.use(
-  "/graphql",
-  graphqlHTTP({
-    schema: schema,
-    rootValue: root,
-    graphiql: true,
-  }),
-);
-const port = 4000;
-app.listen(port);
-console.log(`Running a GraphQL API server at http://localhost:${port}/graphql`);
+// Create Apollo Server instance
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
+
+// Start the server
+server.listen().then(({ url }) => {
+  console.log(`🚀 Server ready at ${url}`);
+});
