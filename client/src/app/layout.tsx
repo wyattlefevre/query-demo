@@ -1,5 +1,4 @@
 'use client'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import { PostStoreProvider } from '@/providers/PostsStoreProvider'
 import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client'

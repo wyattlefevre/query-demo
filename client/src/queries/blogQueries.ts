@@ -52,6 +52,12 @@ export const CREATE_COMMENT = gql`
     addComment(postId: $postId, comment: $comment) {
       id
       comment
+      post {
+        comments {
+          id
+          comment
+        }
+      }
     }
   }
 `

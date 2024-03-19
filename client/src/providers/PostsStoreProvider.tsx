@@ -21,11 +21,13 @@ export type PostState = {
   }
 }
 
+export const emptyPost: Post = {
+  title: '',
+  comments: [],
+}
+
 export const emptyPostState: PostState = {
-  post: {
-    title: '',
-    comments: [],
-  },
+  post: emptyPost,
   postResponse: {
     responseCode: '',
     errorMessage: '',
